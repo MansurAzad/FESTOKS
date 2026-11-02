@@ -78,6 +78,34 @@
       "when": 1793601800000,
       "tag": "0010_urgent_transaction_safety",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793622960000,
+      "tag": "0011_owner_provisioned_accounts",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793622961000,
+      "tag": "0012_accounting_reporting_rpc",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793622962000,
+      "tag": "0013_idempotent_business_operations",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793622963000,
+      "tag": "0014_json_retailer_balance_summary",
+      "breakpoints": true
     }
   ]
 }

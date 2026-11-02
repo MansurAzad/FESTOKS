@@ -1,1 +1,5 @@
 project_id = "kjfzlecurkvvkcwlidxc"
+
+[auth]
+enable_signup = false
+additional_redirect_urls = ["https://festoks-pro.vercel.app/**", "http://localhost:3000/**"]

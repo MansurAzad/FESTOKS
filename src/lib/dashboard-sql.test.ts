@@ -1,12 +1,14 @@
 // Runs the actual reporting SQL over temporary CTE fixtures; no live rows are changed.
-import { execFileSync } from "node:child_process";
+import { PGlite } from "@electric-sql/pglite";
 import { readFileSync } from "node:fs";
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { DashboardInsights } from "./dashboard";
 
 describe("Dashboard database calculations", () => {
   let report: DashboardInsights;
-  beforeAll(() => {
+  let db: PGlite;
+  beforeAll(async () => {
+    db = new PGlite();
     const migration = readFileSync("drizzle/migrations/0002_dashboard_alerts_and_kpis.sql", "utf8");
     const body = migration.split("AS $$")[1]?.split("$$;")[0];
     if (!body) throw new Error("Reporting SQL missing");
@@ -28,16 +30,33 @@ fixture_stock_movements AS (SELECT NULL::text kind,0 qty,0::numeric unit_price W
 fixture_deposits AS (SELECT 10::numeric amount),
 `;
     let sql = body.replace(/^\s*WITH /, `WITH ${fixtures}`);
-    for (const table of ["sales", "retailer_payments", "retailers", "profiles", "user_roles", "products", "imei_units", "stock_movements", "deposits"]) {
+    for (const table of [
+      "sales",
+      "retailer_payments",
+      "retailers",
+      "profiles",
+      "user_roles",
+      "products",
+      "imei_units",
+      "stock_movements",
+      "deposits",
+    ]) {
       sql = sql.replaceAll(`public.${table}`, `fixture_${table}`);
     }
     sql = sql.replaceAll("public.has_role(auth.uid(),'admin')", "true");
     // Add product fields needed by the real query without assigning live inventory.
-    sql = sql.replace("fixture_products p", "(SELECT *,NULL::text model,10::numeric price,false is_smartphone FROM fixture_products) p");
-    const output = JSON.parse(execFileSync("lovable", ["supabase", "query", sql], { encoding: "utf8" }));
-    report = output[0].jsonb_build_object;
-    if (!report) throw new Error("No report returned");
+    sql = sql.replace(
+      "fixture_products p",
+      "(SELECT *,NULL::text model,10::numeric price,false is_smartphone FROM fixture_products) p",
+    );
+    const output = await db.query<{ jsonb_build_object: DashboardInsights }>(sql);
+    const result = output.rows[0]?.jsonb_build_object;
+    if (!result) throw new Error("No report returned");
+    report = result;
   }, 60_000);
+  afterAll(async () => {
+    await db?.close();
+  });
 
   it("includes exactly 30-day debt but excludes a younger balance", () => {
     expect(report.overdue.map((r) => r.id).sort()).toEqual(["boundary", "old"]);

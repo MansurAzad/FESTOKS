@@ -43,6 +43,18 @@ Vercel-এর জন্য `bun run build:vercel` ব্যবহার হয়; 
 
 কোনো secret `VITE_` variable-এ রাখবেন না। `.env` বা credential কখনো commit করবেন না। Production database migration চালানোর আগে আলাদা backup এবং অনুমোদিত migration process নিশ্চিত করুন।
 
+### Auth ও Owner onboarding
+
+Public sign-up বন্ধ রাখুন (`supabase/config.toml`-এ `auth.enable_signup = false`)। Supabase Auth-এর “Allow new users to sign up” সেটিংও বন্ধ থাকতে হবে; config পরিবর্তনের আগে `supabase config diff` দেখে শুধু অনুমোদিত setting push করুন। Password reset-এর production redirect URL allowlist-এ আছে। নতুন project-এর প্রথম Owner শুধু server-side Supabase Admin API দিয়ে তৈরি করুন:
+
+```sh
+bun run auth:bootstrap-owner
+```
+
+এই command `SUPABASE_SERVICE_ROLE_KEY` ব্যবহার করে, password terminal-এ গোপনে নেয়, এবং প্রথম Owner-কে সীমিত `app_metadata.provisioning` flag-সহ provision করে। Existing project-এ Owner আছে—এমন অবস্থায় এটি চালাবেন না। পরে Salesman account শুধু Owner-এর অ্যাপ থেকে তৈরি হবে। Public signup চালু করবেন না; database trigger অন্য user creation প্রত্যাখ্যান করে।
+
+Auth পেজে password reset আছে। নতুন password ও Salesman password কমপক্ষে ১২ অক্ষরের unique passphrase হওয়া উচিত।
+
 ## Database migrations
 
 `drizzle/migrations/` is the canonical SQL migration source. Before deploying, mirror its journaled migrations into Supabase CLI's timestamped migration directory and apply them to the linked project:

@@ -16,7 +16,8 @@ import { RecordActions } from "@/components/RecordActions";
 
 export const Route = createFileRoute("/_authenticated/salesmen")({
   beforeLoad: requireAdmin,
-  head: () => pageHead("সেলসম্যান", "FIROZA ENTERPRISE salesman accounts and individual stock balances."),
+  head: () =>
+    pageHead("সেলসম্যান", "FIROZA ENTERPRISE salesman accounts and individual stock balances."),
   component: Salesmen,
 });
 
@@ -35,31 +36,77 @@ function Salesmen() {
       toast.success(t("done"));
       setF({ full_name: "", phone: "", email: "", password: "" });
       qc.invalidateQueries({ queryKey: ["salesmen"] });
-    } catch (err) { toast.error((err as Error).message); }
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
   }
   return (
     <div className="space-y-6">
       <PageTitle>{t("salesmen")}</PageTitle>
       <form onSubmit={add} className="grid gap-3 rounded-xl border bg-card p-4 md:grid-cols-5">
-        <Input required placeholder={t("fullName")} value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} />
-        <Input placeholder={t("phone")} value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
-        <Input required type="email" placeholder={t("email")} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-        <Input required type="password" minLength={6} placeholder={t("password")} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+        <Input
+          required
+          placeholder={t("fullName")}
+          value={f.full_name}
+          onChange={(e) => setF({ ...f, full_name: e.target.value })}
+        />
+        <Input
+          placeholder={t("phone")}
+          value={f.phone}
+          onChange={(e) => setF({ ...f, phone: e.target.value })}
+        />
+        <Input
+          required
+          type="email"
+          placeholder={t("email")}
+          value={f.email}
+          onChange={(e) => setF({ ...f, email: e.target.value })}
+        />
+        <div className="space-y-1">
+          <Input
+            required
+            type="password"
+            autoComplete="new-password"
+            minLength={12}
+            placeholder={t("password")}
+            value={f.password}
+            onChange={(e) => setF({ ...f, password: e.target.value })}
+          />
+          <p className="text-xs text-muted-foreground">{t("passwordGuidance")}</p>
+        </div>
         <Button>{t("newSalesman")}</Button>
       </form>
       <div className="space-y-3">
         {list.map((s) => (
           <div key={s.id} className="rounded-xl border bg-card p-4">
             <div className="flex items-center gap-3">
-              <button className="flex-1 text-left" onClick={() => setOpen(open === s.id ? null : s.id)}>
+              <button
+                className="flex-1 text-left"
+                onClick={() => setOpen(open === s.id ? null : s.id)}
+              >
                 <div className="font-display font-bold">{s.full_name}</div>
                 <div className="text-sm text-muted-foreground">{s.phone}</div>
               </button>
-              <span className={s.active ? "text-sm text-success" : "text-sm text-destructive"}>{t(s.active ? "active" : "inactive")}</span>
-              <Button asChild size="sm" variant="outline"><Link to="/user-access">{t("manageAccess")}</Link></Button>
-              <RecordActions table="profiles" id={s.id} fields={[{ key: "full_name", label: "fullName", value: s.full_name }, { key: "phone", label: "phone", value: s.phone }]} />
+              <span className={s.active ? "text-sm text-success" : "text-sm text-destructive"}>
+                {t(s.active ? "active" : "inactive")}
+              </span>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/user-access">{t("manageAccess")}</Link>
+              </Button>
+              <RecordActions
+                table="profiles"
+                id={s.id}
+                fields={[
+                  { key: "full_name", label: "fullName", value: s.full_name },
+                  { key: "phone", label: "phone", value: s.phone },
+                ]}
+              />
             </div>
-            {open === s.id && <div className="mt-4"><SalesmanSummary salesmanId={s.id} /></div>}
+            {open === s.id && (
+              <div className="mt-4">
+                <SalesmanSummary salesmanId={s.id} />
+              </div>
+            )}
           </div>
         ))}
       </div>

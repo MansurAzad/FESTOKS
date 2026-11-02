@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "db:migrations:sync": "node scripts/sync-supabase-migrations.mjs",
     "db:push": "node scripts/deploy-supabase-migrations.mjs",
+    "auth:bootstrap-owner": "node scripts/provision-initial-owner.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",

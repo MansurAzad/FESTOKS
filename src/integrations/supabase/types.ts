@@ -514,6 +514,32 @@ export type Database = {
       distribution_insights: { Args: never; Returns: Json }
       distribution_stock_counts: { Args: never; Returns: Json }
       export_business_data: { Args: never; Returns: Json }
+      perform_business_operation: {
+        Args: { _kind: string; _operation_id: string; _payload: Json }
+        Returns: Json
+      }
+      retailer_balance_summary: { Args: never; Returns: Json }
+      retailer_ledger_page: {
+        Args: {
+          _from?: string | null
+          _limit?: number
+          _offset?: number
+          _retailer: string
+          _to?: string | null
+        }
+        Returns: Json
+      }
+      salesman_account_summary: { Args: { _salesman: string }; Returns: Json }
+      salesman_deposit_page: {
+        Args: {
+          _from?: string | null
+          _limit?: number
+          _offset?: number
+          _salesman: string
+          _to?: string | null
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
