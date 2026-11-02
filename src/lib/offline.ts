@@ -11,10 +11,28 @@ import type { Json } from "@/integrations/supabase/types";
 
 export type QueuedOp =
   | { kind: "record_sale"; payload: { _retailer: string; _items: Json[]; _paid: number } }
+  | {
+      kind: "receive_stock";
+      payload: {
+        _product: string;
+        _imeis: Json;
+        _quantity: number;
+        _supplier: string;
+        _purchase_reference: string | null;
+        _batch_reference: string | null;
+        _unit_cost: number;
+        _received_on: string;
+        _note: string | null;
+      };
+    }
   | { kind: "return_stock"; payload: { _salesman: string; _items: Json[] } }
   | { kind: "issue_stock"; payload: { _salesman: string; _items: Json[] } }
   | { kind: "deposit"; payload: { salesman_id: string; amount: number; note: string | null } }
-  | { kind: "retailer_payment"; payload: { retailer_id: string; amount: number } }
+  | {
+      kind: "retailer_payment";
+      payload: { retailer_id: string; amount: number; note?: string | null };
+    }
+  | { kind: "supplier_payment"; payload: { supplier: string; amount: number; note: string | null } }
   | {
       kind: "add_retailer";
       payload: { name: string; phone: string; address: string; salesman_id: string };
@@ -132,14 +150,28 @@ export function isNetworkFailure(error: unknown, offline: boolean): boolean {
 
 /** Run one queued op against the same RPC/insert paths the online forms use. */
 async function runOp(op: QueuedOp, operationId: string) {
-  const result = await supabase.rpc("perform_business_operation", {
-    _operation_id: operationId,
-    _kind: op.kind,
-    _payload: op.payload,
-  });
+  const result =
+    op.kind === "receive_stock"
+      ? await supabase.rpc("perform_stock_receipt_operation", {
+          _operation_id: operationId,
+          _payload: op.payload,
+        })
+      : op.kind === "supplier_payment"
+        ? await supabase.rpc("perform_supplier_payment_operation", {
+            _operation_id: operationId,
+            _payload: op.payload,
+          })
+        : await supabase.rpc("perform_business_operation", {
+            _operation_id: operationId,
+            _kind: op.kind,
+            _payload: op.payload,
+          });
   if (result.error) return result;
   const data = result.data as { id?: string } | null;
-  return { ...result, data: op.kind === "record_sale" ? data?.id : result.data };
+  return {
+    ...result,
+    data: op.kind === "record_sale" || op.kind === "receive_stock" ? data?.id : result.data,
+  };
 }
 
 /**

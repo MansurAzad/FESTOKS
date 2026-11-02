@@ -22,6 +22,8 @@ export type SalesmanSummaryData = {
     damaged: number;
     hand: number;
     value: number;
+    unknownCostHand: number;
+    knownGrossProfit: number;
   }[];
   handImeis: { imei: string; product_id: string; status: string }[];
   salesTotal: number;
@@ -29,6 +31,8 @@ export type SalesmanSummaryData = {
   deposited: number;
   retailerDue: number;
   owesDealer: number;
+  owesDealerUnknownQty: number;
+  unknownCostSoldQty: number;
 };
 
 /**

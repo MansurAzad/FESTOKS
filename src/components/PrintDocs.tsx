@@ -21,22 +21,61 @@ export function PrintSheet({ children, onDone }: { children: ReactNode; onDone: 
 }
 
 const cell: CSSProperties = { border: "1px solid #94a3b8", padding: "4px 8px", fontSize: 12 };
-const th: CSSProperties = { ...cell, background: "#0f766e", color: "#fff", textAlign: "left", fontWeight: 700 };
+const th: CSSProperties = {
+  ...cell,
+  background: "#0f766e",
+  color: "#fff",
+  textAlign: "left",
+  fontWeight: 700,
+};
 const thR: CSSProperties = { ...th, textAlign: "right" };
 const tdR: CSSProperties = { ...cell, textAlign: "right" };
 
-const fmtDate = (iso: string) => new Date(iso).toLocaleString("bn-BD", { dateStyle: "medium", timeStyle: "short" });
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleString("bn-BD", { dateStyle: "medium", timeStyle: "short" });
 
-function Letterhead({ b, title, fallbackName }: { b: Business; title: string; fallbackName: string }) {
+function Letterhead({
+  b,
+  title,
+  fallbackName,
+}: {
+  b: Business;
+  title: string;
+  fallbackName: string;
+}) {
   return (
-    <div style={{ textAlign: "center", borderBottom: "3px double #0f766e", paddingBottom: 10, marginBottom: 12 }}>
-      <img src={LOGO_URL} alt={b.name || fallbackName} style={{ height: 64, margin: "0 auto 6px", display: "block" }} />
-      <div style={{ fontSize: 24, fontWeight: 800, color: "#0f766e" }}>{b.name || fallbackName}</div>
+    <div
+      style={{
+        textAlign: "center",
+        borderBottom: "3px double #0f766e",
+        paddingBottom: 10,
+        marginBottom: 12,
+      }}
+    >
+      <img
+        src={LOGO_URL}
+        alt={b.name || fallbackName}
+        style={{ height: 64, margin: "0 auto 6px", display: "block" }}
+      />
+      <div style={{ fontSize: 24, fontWeight: 800, color: "#0f766e" }}>
+        {b.name || fallbackName}
+      </div>
       {(b.address || b.phone) && (
-        <div style={{ fontSize: 12, color: "#334155" }}>{[b.address, b.phone].filter(Boolean).join(" · ")}</div>
+        <div style={{ fontSize: 12, color: "#334155" }}>
+          {[b.address, b.phone].filter(Boolean).join(" · ")}
+        </div>
       )}
       <div style={{ marginTop: 8 }}>
-        <span style={{ display: "inline-block", border: "1.5px solid #0f766e", borderRadius: 6, padding: "2px 16px", fontSize: 14, fontWeight: 700 }}>
+        <span
+          style={{
+            display: "inline-block",
+            border: "1.5px solid #0f766e",
+            borderRadius: 6,
+            padding: "2px 16px",
+            fontSize: 14,
+            fontWeight: 700,
+          }}
+        >
           {title}
         </span>
       </div>
@@ -47,8 +86,16 @@ function Letterhead({ b, title, fallbackName }: { b: Business; title: string; fa
 function Signatures({ left, right }: { left: string; right: string }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", marginTop: 56, fontSize: 12 }}>
-      <div style={{ borderTop: "1px solid #0f172a", paddingTop: 4, width: 170, textAlign: "center" }}>{left}</div>
-      <div style={{ borderTop: "1px solid #0f172a", paddingTop: 4, width: 170, textAlign: "center" }}>{right}</div>
+      <div
+        style={{ borderTop: "1px solid #0f172a", paddingTop: 4, width: 170, textAlign: "center" }}
+      >
+        {left}
+      </div>
+      <div
+        style={{ borderTop: "1px solid #0f172a", paddingTop: 4, width: 170, textAlign: "center" }}
+      >
+        {right}
+      </div>
     </div>
   );
 }
@@ -57,25 +104,55 @@ export type ReceiptItem = { name: string; qty: number; unit_price: number; imeis
 
 /** Business-standard sales invoice / receipt for a retailer sale. */
 export function SaleReceiptDoc({
-  b, appName, saleId, date, retailerName, retailerMeta, items, total, paid,
+  b,
+  appName,
+  saleId,
+  date,
+  retailerName,
+  retailerMeta,
+  items,
+  total,
+  paid,
 }: {
-  b: Business; appName: string; saleId: string; date: string;
-  retailerName: string; retailerMeta?: string | undefined; items: ReceiptItem[]; total: number; paid: number;
+  b: Business;
+  appName: string;
+  saleId: string;
+  date: string;
+  retailerName: string;
+  retailerMeta?: string | undefined;
+  items: ReceiptItem[];
+  total: number;
+  paid: number;
 }) {
   const { t } = useT();
   return (
     <div>
       <Letterhead b={b} title={t("saleInvoice")} fallbackName={appName} />
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8 }}>
-        <div><b>{t("retailers")}:</b> {retailerName}{retailerMeta ? ` · ${retailerMeta}` : ""}</div>
+      <div
+        style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8 }}
+      >
+        <div>
+          <b>{t("retailers")}:</b> {retailerName}
+          {retailerMeta ? ` · ${retailerMeta}` : ""}
+        </div>
         <div style={{ textAlign: "right" }}>
-          <div>{t("receipt")} #: {saleId.slice(0, 8).toUpperCase()}</div>
-          <div>{t("date")}: {fmtDate(date)}</div>
+          <div>
+            {t("receipt")} #: {saleId.slice(0, 8).toUpperCase()}
+          </div>
+          <div>
+            {t("date")}: {fmtDate(date)}
+          </div>
         </div>
       </div>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr><th style={th}>#</th><th style={th}>{t("products")}</th><th style={thR}>{t("qty")}</th><th style={thR}>{t("price")}</th><th style={thR}>{t("total")}</th></tr>
+          <tr>
+            <th style={th}>#</th>
+            <th style={th}>{t("products")}</th>
+            <th style={thR}>{t("qty")}</th>
+            <th style={thR}>{t("price")}</th>
+            <th style={thR}>{t("total")}</th>
+          </tr>
         </thead>
         <tbody>
           {items.map((it, i) => (
@@ -83,7 +160,9 @@ export function SaleReceiptDoc({
               <td style={cell}>{i + 1}</td>
               <td style={cell}>
                 {it.name}
-                {it.imeis.length > 0 && <div style={{ fontSize: 10, color: "#475569" }}>IMEI: {it.imeis.join(", ")}</div>}
+                {it.imeis.length > 0 && (
+                  <div style={{ fontSize: 10, color: "#475569" }}>IMEI: {it.imeis.join(", ")}</div>
+                )}
               </td>
               <td style={tdR}>{it.qty}</td>
               <td style={tdR}>{money(it.unit_price)}</td>
@@ -92,9 +171,24 @@ export function SaleReceiptDoc({
           ))}
         </tbody>
         <tfoot>
-          <tr><td colSpan={4} style={{ ...tdR, fontWeight: 700 }}>{t("total")}</td><td style={{ ...tdR, fontWeight: 700 }}>{money(total)}</td></tr>
-          <tr><td colSpan={4} style={tdR}>{t("paid")}</td><td style={tdR}>{money(paid)}</td></tr>
-          <tr><td colSpan={4} style={{ ...tdR, fontWeight: 700 }}>{t("due")}</td><td style={{ ...tdR, fontWeight: 700 }}>{money(total - paid)}</td></tr>
+          <tr>
+            <td colSpan={4} style={{ ...tdR, fontWeight: 700 }}>
+              {t("total")}
+            </td>
+            <td style={{ ...tdR, fontWeight: 700 }}>{money(total)}</td>
+          </tr>
+          <tr>
+            <td colSpan={4} style={tdR}>
+              {t("paid")}
+            </td>
+            <td style={tdR}>{money(paid)}</td>
+          </tr>
+          <tr>
+            <td colSpan={4} style={{ ...tdR, fontWeight: 700 }}>
+              {t("due")}
+            </td>
+            <td style={{ ...tdR, fontWeight: 700 }}>{money(total - paid)}</td>
+          </tr>
         </tfoot>
       </table>
       <Signatures left={t("salesmen")} right={t("retailers")} />
@@ -104,24 +198,59 @@ export function SaleReceiptDoc({
 
 /** Money receipt for a payment collected from a retailer. */
 export function MoneyReceiptDoc({
-  b, appName, receiptId, date, fromName, fromMeta, amount, note, receivedBy,
+  b,
+  appName,
+  receiptId,
+  date,
+  fromName,
+  fromMeta,
+  amount,
+  note,
+  receivedBy,
 }: {
-  b: Business; appName: string; receiptId: string; date: string;
-  fromName: string; fromMeta?: string | undefined; amount: number; note?: string | null | undefined; receivedBy: string;
+  b: Business;
+  appName: string;
+  receiptId: string;
+  date: string;
+  fromName: string;
+  fromMeta?: string | undefined;
+  amount: number;
+  note?: string | null | undefined;
+  receivedBy: string;
 }) {
   const { t } = useT();
   return (
     <div>
       <Letterhead b={b} title={t("moneyReceipt")} fallbackName={appName} />
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 12 }}>
-        <div>{t("receipt")} #: {receiptId.slice(0, 8).toUpperCase()}</div>
-        <div>{t("date")}: {fmtDate(date)}</div>
+      <div
+        style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 12 }}
+      >
+        <div>
+          {t("receipt")} #: {receiptId.slice(0, 8).toUpperCase()}
+        </div>
+        <div>
+          {t("date")}: {fmtDate(date)}
+        </div>
       </div>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <tbody>
-          <tr><td style={{ ...cell, width: "40%", fontWeight: 700 }}>{t("receivedFrom")}</td><td style={cell}>{fromName}{fromMeta ? ` · ${fromMeta}` : ""}</td></tr>
-          <tr><td style={{ ...cell, fontWeight: 700 }}>{t("amount")}</td><td style={{ ...cell, fontSize: 16, fontWeight: 800 }}>{money(amount)}</td></tr>
-          {note && <tr><td style={{ ...cell, fontWeight: 700 }}>Note</td><td style={cell}>{note}</td></tr>}
+          <tr>
+            <td style={{ ...cell, width: "40%", fontWeight: 700 }}>{t("receivedFrom")}</td>
+            <td style={cell}>
+              {fromName}
+              {fromMeta ? ` · ${fromMeta}` : ""}
+            </td>
+          </tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("amount")}</td>
+            <td style={{ ...cell, fontSize: 16, fontWeight: 800 }}>{money(amount)}</td>
+          </tr>
+          {note && (
+            <tr>
+              <td style={{ ...cell, fontWeight: 700 }}>Note</td>
+              <td style={cell}>{note}</td>
+            </tr>
+          )}
         </tbody>
       </table>
       <Signatures left={receivedBy} right={fromName} />
@@ -129,13 +258,79 @@ export function MoneyReceiptDoc({
   );
 }
 
+export function PaymentVoucherDoc({
+  b,
+  appName,
+  paymentId,
+  date,
+  supplier,
+  amount,
+  note,
+  paidBy,
+}: {
+  b: Business;
+  appName: string;
+  paymentId: string;
+  date: string;
+  supplier: string;
+  amount: number;
+  note?: string | null;
+  paidBy: string;
+}) {
+  const { t } = useT();
+  return (
+    <div>
+      <Letterhead b={b} title={t("paymentVoucher")} fallbackName={appName} />
+      <div
+        style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 12 }}
+      >
+        <div>
+          {t("receipt")} #: {paymentId.slice(0, 8).toUpperCase()}
+        </div>
+        <div>
+          {t("date")}: {fmtDate(date)}
+        </div>
+      </div>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <tbody>
+          <tr>
+            <td style={{ ...cell, width: "40%", fontWeight: 700 }}>{t("paidTo")}</td>
+            <td style={cell}>{supplier}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("amount")}</td>
+            <td style={{ ...cell, fontSize: 16, fontWeight: 800 }}>{money(amount)}</td>
+          </tr>
+          {note && (
+            <tr>
+              <td style={{ ...cell, fontWeight: 700 }}>{t("note")}</td>
+              <td style={cell}>{note}</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      <Signatures left={paidBy} right={supplier} />
+    </div>
+  );
+}
+
 /** Retailer ledger: all sales & payments with running totals. */
 export function LedgerDoc({
-  b, appName, retailerName, retailerMeta, entries, total, paid,
+  b,
+  appName,
+  retailerName,
+  retailerMeta,
+  entries,
+  total,
+  paid,
 }: {
-  b: Business; appName: string; retailerName: string; retailerMeta?: string | undefined;
+  b: Business;
+  appName: string;
+  retailerName: string;
+  retailerMeta?: string | undefined;
   entries: { date: string; label: string; debit: number; credit: number }[];
-  total: number; paid: number;
+  total: number;
+  paid: number;
 }) {
   const { t } = useT();
   return (
@@ -144,7 +339,12 @@ export function LedgerDoc({
       {retailerMeta && <div style={{ fontSize: 12, marginBottom: 8 }}>{retailerMeta}</div>}
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr><th style={th}>{t("date")}</th><th style={th}>{t("items")}</th><th style={thR}>{t("sales")}</th><th style={thR}>{t("paid")}</th></tr>
+          <tr>
+            <th style={th}>{t("date")}</th>
+            <th style={th}>{t("items")}</th>
+            <th style={thR}>{t("sales")}</th>
+            <th style={thR}>{t("paid")}</th>
+          </tr>
         </thead>
         <tbody>
           {entries.map((e, i) => (
@@ -157,8 +357,19 @@ export function LedgerDoc({
           ))}
         </tbody>
         <tfoot>
-          <tr><td colSpan={2} style={{ ...tdR, fontWeight: 700 }}>{t("total")}</td><td style={{ ...tdR, fontWeight: 700 }}>{money(total)}</td><td style={{ ...tdR, fontWeight: 700 }}>{money(paid)}</td></tr>
-          <tr><td colSpan={3} style={{ ...tdR, fontWeight: 700 }}>{t("due")}</td><td style={{ ...tdR, fontWeight: 700 }}>{money(total - paid)}</td></tr>
+          <tr>
+            <td colSpan={2} style={{ ...tdR, fontWeight: 700 }}>
+              {t("total")}
+            </td>
+            <td style={{ ...tdR, fontWeight: 700 }}>{money(total)}</td>
+            <td style={{ ...tdR, fontWeight: 700 }}>{money(paid)}</td>
+          </tr>
+          <tr>
+            <td colSpan={3} style={{ ...tdR, fontWeight: 700 }}>
+              {t("due")}
+            </td>
+            <td style={{ ...tdR, fontWeight: 700 }}>{money(total - paid)}</td>
+          </tr>
         </tfoot>
       </table>
       <Signatures left={t("salesmen")} right={t("retailers")} />
@@ -168,22 +379,44 @@ export function LedgerDoc({
 
 /** Generic printable table report (stock lists, summaries). */
 export function TableDoc({
-  b, appName, title, head, rows,
+  b,
+  appName,
+  title,
+  head,
+  rows,
 }: {
-  b: Business; appName: string; title: string; head: string[]; rows: (string | number)[][];
+  b: Business;
+  appName: string;
+  title: string;
+  head: string[];
+  rows: (string | number)[][];
 }) {
   const { t } = useT();
   return (
     <div>
       <Letterhead b={b} title={title} fallbackName={appName} />
-      <div style={{ fontSize: 12, marginBottom: 8, textAlign: "right" }}>{t("date")}: {new Date().toLocaleDateString("bn-BD", { dateStyle: "medium" })}</div>
+      <div style={{ fontSize: 12, marginBottom: 8, textAlign: "right" }}>
+        {t("date")}: {new Date().toLocaleDateString("bn-BD", { dateStyle: "medium" })}
+      </div>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr>{head.map((h, i) => <th key={i} style={i === 0 ? th : thR}>{h}</th>)}</tr>
+          <tr>
+            {head.map((h, i) => (
+              <th key={i} style={i === 0 ? th : thR}>
+                {h}
+              </th>
+            ))}
+          </tr>
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i}>{r.map((c, j) => <td key={j} style={j === 0 ? cell : tdR}>{c}</td>)}</tr>
+            <tr key={i}>
+              {r.map((c, j) => (
+                <td key={j} style={j === 0 ? cell : tdR}>
+                  {c}
+                </td>
+              ))}
+            </tr>
           ))}
         </tbody>
       </table>
@@ -191,44 +424,118 @@ export function TableDoc({
   );
 }
 
-export type SettlementProduct = { name: string; issued: number; sold: number; returned: number; damaged: number; hand: number; value: number };
+export type SettlementProduct = {
+  name: string;
+  issued: number;
+  sold: number;
+  returned: number;
+  damaged: number;
+  hand: number;
+  value: number;
+  unknownCostHand: number;
+  knownGrossProfit: number;
+};
 
 /** Trip settlement report: goods movement + money account for one salesman. */
 export function SettlementDoc({
-  b, appName, salesmanName, products, salesTotal, cashInHand, deposited, retailerDue, owesDealer,
+  b,
+  appName,
+  salesmanName,
+  products,
+  salesTotal,
+  cashInHand,
+  deposited,
+  retailerDue,
+  owesDealer,
+  owesDealerUnknownQty,
+  unknownCostSoldQty,
 }: {
-  b: Business; appName: string; salesmanName: string; products: SettlementProduct[];
-  salesTotal: number; cashInHand: number; deposited: number; retailerDue: number; owesDealer: number;
+  b: Business;
+  appName: string;
+  salesmanName: string;
+  products: SettlementProduct[];
+  salesTotal: number;
+  cashInHand: number;
+  deposited: number;
+  retailerDue: number;
+  owesDealer: number;
+  owesDealerUnknownQty: number;
+  unknownCostSoldQty: number;
 }) {
   const { t } = useT();
   return (
     <div>
       <Letterhead b={b} title={t("settlementReport")} fallbackName={appName} />
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8 }}>
-        <div><b>{t("salesmen")}:</b> {salesmanName}</div>
-        <div>{t("date")}: {new Date().toLocaleDateString("bn-BD", { dateStyle: "medium" })}</div>
+      <div
+        style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8 }}
+      >
+        <div>
+          <b>{t("salesmen")}:</b> {salesmanName}
+        </div>
+        <div>
+          {t("date")}: {new Date().toLocaleDateString("bn-BD", { dateStyle: "medium" })}
+        </div>
       </div>
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 12 }}>
         <thead>
-          <tr><th style={th}>{t("products")}</th><th style={thR}>{t("issued")}</th><th style={thR}>{t("sold")}</th><th style={thR}>{t("returned")}</th><th style={thR}>{t("damaged")}</th><th style={thR}>{t("inHand")}</th><th style={thR}>{t("goodsValue")}</th></tr>
+          <tr>
+            <th style={th}>{t("products")}</th>
+            <th style={thR}>{t("issued")}</th>
+            <th style={thR}>{t("sold")}</th>
+            <th style={thR}>{t("returned")}</th>
+            <th style={thR}>{t("damaged")}</th>
+            <th style={thR}>{t("inHand")}</th>
+            <th style={thR}>{t("goodsValue")}</th>
+            <th style={thR}>{t("unknownHeldCost")}</th>
+            <th style={thR}>{t("knownGrossProfit")}</th>
+          </tr>
         </thead>
         <tbody>
           {products.map((p, i) => (
             <tr key={i}>
-              <td style={cell}>{p.name}</td><td style={tdR}>{p.issued}</td><td style={tdR}>{p.sold}</td>
-              <td style={tdR}>{p.returned}</td><td style={tdR}>{p.damaged}</td><td style={{ ...tdR, fontWeight: 700 }}>{p.hand}</td>
+              <td style={cell}>{p.name}</td>
+              <td style={tdR}>{p.issued}</td>
+              <td style={tdR}>{p.sold}</td>
+              <td style={tdR}>{p.returned}</td>
+              <td style={tdR}>{p.damaged}</td>
+              <td style={{ ...tdR, fontWeight: 700 }}>{p.hand}</td>
               <td style={tdR}>{money(p.value)}</td>
+              <td style={tdR}>{p.unknownCostHand}</td>
+              <td style={tdR}>{money(p.knownGrossProfit)}</td>
             </tr>
           ))}
         </tbody>
       </table>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <tbody>
-          <tr><td style={{ ...cell, fontWeight: 700 }}>{t("sales")}</td><td style={tdR}>{money(salesTotal)}</td></tr>
-          <tr><td style={{ ...cell, fontWeight: 700 }}>{t("retailerDue")}</td><td style={tdR}>{money(retailerDue)}</td></tr>
-          <tr><td style={{ ...cell, fontWeight: 700 }}>{t("cashInHand")}</td><td style={tdR}>{money(cashInHand)}</td></tr>
-          <tr><td style={{ ...cell, fontWeight: 700 }}>{t("deposited")}</td><td style={tdR}>{money(deposited)}</td></tr>
-          <tr><td style={{ ...cell, fontWeight: 700 }}>{t("owesDealer")}</td><td style={{ ...tdR, fontWeight: 800 }}>{money(owesDealer)}</td></tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("sales")}</td>
+            <td style={tdR}>{money(salesTotal)}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("retailerDue")}</td>
+            <td style={tdR}>{money(retailerDue)}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("cashInHand")}</td>
+            <td style={tdR}>{money(cashInHand)}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("deposited")}</td>
+            <td style={tdR}>{money(deposited)}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("owesDealer")}</td>
+            <td style={{ ...tdR, fontWeight: 800 }}>{money(owesDealer)}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("unknownHeldCost")}</td>
+            <td style={tdR}>{owesDealerUnknownQty}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cell, fontWeight: 700 }}>{t("unknownCostSold")}</td>
+            <td style={tdR}>{unknownCostSoldQty}</td>
+          </tr>
         </tbody>
       </table>
       <Signatures left={t("salesmen")} right={t("businessOwner")} />

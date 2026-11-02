@@ -15,6 +15,7 @@ import { runOrQueue, useOnline } from "@/lib/offline";
 import { MoneyReceiptDoc, PrintSheet, SettlementDoc } from "@/components/PrintDocs";
 import { CartBuilder, type CartLine } from "@/components/CartBuilder";
 import { SalesmanSummary } from "@/components/SalesmanSummary";
+import { RecordActions } from "@/components/RecordActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -68,7 +69,7 @@ function Settlement() {
           <ReportBox salesmanId={sid} salesmanName={name} />
           {(me.isAdmin || me.permissions.returns) && <ReturnBox key={"r" + sid} salesmanId={sid} />}
           {me.isAdmin && <DepositBox key={"d" + sid} salesmanId={sid} />}
-          <DepositHistory salesmanId={sid} salesmanName={name} />
+          <DepositHistory salesmanId={sid} salesmanName={name} canManage={me.isAdmin} />
         </>
       )}
     </div>
@@ -96,6 +97,8 @@ function ReportBox({ salesmanId, salesmanName }: { salesmanId: string; salesmanN
         t("damaged"),
         t("inHand"),
         t("goodsValue"),
+        t("unknownHeldCost"),
+        t("knownGrossProfit"),
       ],
       ...d.products.map((p) => [
         p.name,
@@ -105,6 +108,8 @@ function ReportBox({ salesmanId, salesmanName }: { salesmanId: string; salesmanN
         p.damaged,
         p.hand,
         Math.round(p.value),
+        p.unknownCostHand,
+        Math.round(p.knownGrossProfit),
       ]),
       [],
       [t("sales"), Math.round(d.salesTotal)],
@@ -112,6 +117,8 @@ function ReportBox({ salesmanId, salesmanName }: { salesmanId: string; salesmanN
       [t("cashInHand"), Math.round(d.cashInHand)],
       [t("deposited"), Math.round(d.deposited)],
       [t("owesDealer"), Math.round(d.owesDealer)],
+      [t("unknownHeldCost"), d.owesDealerUnknownQty],
+      [t("unknownCostSold"), d.unknownCostSoldQty],
     ];
     exportCsv(`settlement-${salesmanName || "report"}.csv`, rows, t("settlementReport"));
   }
@@ -130,6 +137,8 @@ function ReportBox({ salesmanId, salesmanName }: { salesmanId: string; salesmanN
         deposited={d.deposited}
         retailerDue={d.retailerDue}
         owesDealer={d.owesDealer}
+        owesDealerUnknownQty={d.owesDealerUnknownQty}
+        unknownCostSoldQty={d.unknownCostSoldQty}
       />,
     );
   }
@@ -268,9 +277,11 @@ function DepositBox({ salesmanId }: { salesmanId: string }) {
 function DepositHistory({
   salesmanId,
   salesmanName,
+  canManage,
 }: {
   salesmanId: string;
   salesmanName: string;
+  canManage: boolean;
 }) {
   const { t } = useT();
   const [business] = useBusiness();
@@ -382,6 +393,16 @@ function DepositHistory({
           >
             <Printer className="h-4 w-4" />
           </Button>
+          {canManage && (
+            <RecordActions
+              table="deposits"
+              id={d.id}
+              fields={[
+                { key: "amount", label: "amount", value: Number(d.amount), type: "number" },
+                { key: "note", label: "note", value: d.note },
+              ]}
+            />
+          )}
         </div>
       ))}
       {data && (

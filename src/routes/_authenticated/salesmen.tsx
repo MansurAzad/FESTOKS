@@ -28,6 +28,12 @@ function Salesmen() {
   const { data: list = [] } = useSalesmen();
   const [f, setF] = useState({ full_name: "", phone: "", email: "", password: "" });
   const [open, setOpen] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const visibleList = list.filter((salesman) =>
+    `${salesman.full_name} ${salesman.phone ?? ""}`
+      .toLocaleLowerCase()
+      .includes(search.trim().toLocaleLowerCase()),
+  );
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
@@ -76,8 +82,13 @@ function Salesmen() {
         </div>
         <Button>{t("newSalesman")}</Button>
       </form>
+      <Input
+        placeholder={t("searchSalesman")}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
       <div className="space-y-3">
-        {list.map((s) => (
+        {visibleList.map((s) => (
           <div key={s.id} className="rounded-xl border bg-card p-4">
             <div className="flex items-center gap-3">
               <button
@@ -109,6 +120,7 @@ function Salesmen() {
             )}
           </div>
         ))}
+        {visibleList.length === 0 && <p className="text-muted-foreground">{t("noData")}</p>}
       </div>
     </div>
   );

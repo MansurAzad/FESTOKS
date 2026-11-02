@@ -99,6 +99,7 @@ function Retailers() {
   const { data: me } = useMe();
   const { data: salesmen = [] } = useSalesmen();
   const [salesmanId, setSalesmanId] = useState("");
+  const [filterSalesmanId, setFilterSalesmanId] = useState("all");
   const online = useOnline();
   const { data: retailers = [] } = useRetailers();
   const [business] = useBusiness();
@@ -107,6 +108,8 @@ function Retailers() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [dueOnly, setDueOnly] = useState(false);
   const [printDoc, setPrintDoc] = useState<ReactNode | null>(null);
   const { data: balances = new Map<string, RetailerBalance>(), error: balanceError } = useQuery({
     queryKey: ["retailer-balances"],
@@ -136,6 +139,16 @@ function Retailers() {
     },
   });
   const appName = t("appName");
+  const visibleRetailers = retailers.filter((retailer) => {
+    const text =
+      `${retailer.name} ${retailer.phone ?? ""} ${retailer.address ?? ""}`.toLocaleLowerCase();
+    const due = totalOf(retailer) - paidOf(retailer);
+    return (
+      text.includes(search.trim().toLocaleLowerCase()) &&
+      (!dueOnly || due > 0) &&
+      (filterSalesmanId === "all" || retailer.salesman_id === filterSalesmanId)
+    );
+  });
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
@@ -161,7 +174,7 @@ function Retailers() {
     const rows: (string | number)[][] = [
       [t("name"), t("phone"), t("address"), t("total"), t("paid"), t("due")],
     ];
-    for (const r of retailers)
+    for (const r of visibleRetailers)
       rows.push([
         r.name,
         r.phone ?? "",
@@ -305,6 +318,36 @@ function Retailers() {
           {t("loadFailed")}
         </p>
       )}
+      <div className="grid gap-2 rounded-xl border bg-card p-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+        <Input
+          placeholder={t("searchNamePhone")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={dueOnly} onChange={(e) => setDueOnly(e.target.checked)} />
+          {t("dueOnly")}
+        </label>
+        {me?.isAdmin && (
+          <Select value={filterSalesmanId} onValueChange={setFilterSalesmanId}>
+            <SelectTrigger>
+              <SelectValue placeholder={t("allSalesmen")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allSalesmen")}</SelectItem>
+              {salesmen.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
+      <p className="text-sm font-semibold">
+        {t("totalDue")}:{" "}
+        {money(visibleRetailers.reduce((sum, r) => sum + totalOf(r) - paidOf(r), 0))}
+      </p>
       {me && (me.isAdmin || me.permissions.retailer_manage) && (
         <form onSubmit={add} className="grid gap-3 rounded-xl border bg-card p-4 md:grid-cols-4">
           {me.isAdmin && (
@@ -341,7 +384,7 @@ function Retailers() {
         </form>
       )}
       <div className="space-y-3">
-        {retailers.map((r) => {
+        {visibleRetailers.map((r) => {
           const total = totalOf(r);
           const paid = paidOf(r);
           const entries = open === r.id ? (ledgerQuery.data?.entries ?? []) : [];
@@ -373,7 +416,7 @@ function Retailers() {
               {open === r.id && (
                 <div className="mt-3 space-y-3 border-t pt-3">
                   {!me?.isAdmin && me?.permissions.collect_payment && (
-                    <PaymentForm retailerId={r.id} max={total - paid} />
+                    <PaymentForm retailer={r} max={total - paid} />
                   )}
                   <div className="flex flex-wrap gap-2">
                     {(me?.isAdmin || me?.permissions.retailer_manage) && (
@@ -500,6 +543,21 @@ function Retailers() {
                             >
                               <Printer className="h-4 w-4" />
                             </Button>
+                            {me?.isAdmin && (
+                              <RecordActions
+                                table="retailer_payments"
+                                id={entry.id}
+                                fields={[
+                                  {
+                                    key: "amount",
+                                    label: "amount",
+                                    value: Number(entry.amount),
+                                    type: "number",
+                                  },
+                                  { key: "note", label: "note", value: entry.note },
+                                ]}
+                              />
+                            )}
                           </>
                         ) : (
                           <>
@@ -568,17 +626,21 @@ function Retailers() {
             </div>
           );
         })}
-        {retailers.length === 0 && <p className="text-muted-foreground">{t("noData")}</p>}
+        {visibleRetailers.length === 0 && <p className="text-muted-foreground">{t("noData")}</p>}
       </div>
       {printDoc && <PrintSheet onDone={() => setPrintDoc(null)}>{printDoc}</PrintSheet>}
     </div>
   );
 }
 
-function PaymentForm({ retailerId, max }: { retailerId: string; max: number }) {
+function PaymentForm({ retailer, max }: { retailer: RetailerRow; max: number }) {
   const { t } = useT();
   const qc = useQueryClient();
+  const { data: me } = useMe();
+  const [business] = useBusiness();
   const [amt, setAmt] = useState("");
+  const [note, setNote] = useState("");
+  const [printDoc, setPrintDoc] = useState<ReactNode | null>(null);
   const online = useOnline();
   async function pay(e: React.FormEvent) {
     e.preventDefault();
@@ -588,7 +650,10 @@ function PaymentForm({ retailerId, max }: { retailerId: string; max: number }) {
       return;
     }
     const result = await runOrQueue(
-      { kind: "retailer_payment", payload: { retailer_id: retailerId, amount: n } },
+      {
+        kind: "retailer_payment",
+        payload: { retailer_id: retailer.id, amount: n, note: note.trim() || null },
+      },
       !online,
     );
     if (result.s === "error") {
@@ -596,18 +661,43 @@ function PaymentForm({ retailerId, max }: { retailerId: string; max: number }) {
       return;
     }
     setAmt("");
+    setNote("");
     toast.success(t(result.s === "queued" ? "savedOffline" : "done"));
     qc.invalidateQueries();
+    if (result.s === "done") {
+      const data = result.data as { id?: unknown } | null;
+      if (typeof data?.id === "string")
+        setPrintDoc(
+          <MoneyReceiptDoc
+            b={business}
+            appName={t("appName")}
+            receiptId={data.id}
+            date={new Date().toISOString()}
+            fromName={retailer.name}
+            fromMeta={retailer.phone ?? undefined}
+            amount={n}
+            note={note.trim() || null}
+            receivedBy={me?.profile?.full_name || ""}
+          />,
+        );
+    }
   }
   return (
-    <form onSubmit={pay} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-      <Input
-        type="number"
-        placeholder={t("amount")}
-        value={amt}
-        onChange={(e) => setAmt(e.target.value)}
-      />
-      <Button>{t("collectPayment")}</Button>
-    </form>
+    <>
+      <form onSubmit={pay} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+        <Input
+          type="number"
+          min="0.01"
+          step="0.01"
+          max={max}
+          placeholder={t("amount")}
+          value={amt}
+          onChange={(e) => setAmt(e.target.value)}
+        />
+        <Input placeholder={t("note")} value={note} onChange={(e) => setNote(e.target.value)} />
+        <Button>{t("collectPayment")}</Button>
+      </form>
+      {printDoc && <PrintSheet onDone={() => setPrintDoc(null)}>{printDoc}</PrintSheet>}
+    </>
   );
 }

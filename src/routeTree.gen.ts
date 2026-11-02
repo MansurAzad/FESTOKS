@@ -20,6 +20,7 @@ import { Route as AuthenticatedSalesmenRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSettlementRouteImport } from './routes/_authenticated/settlement'
 import { Route as AuthenticatedStockIssueRouteImport } from './routes/_authenticated/stock-issue'
+import { Route as AuthenticatedSupplierDuesRouteImport } from './routes/_authenticated/supplier-dues'
 import { Route as AuthenticatedUserAccessRouteImport } from './routes/_authenticated/user-access'
 
 const IndexRoute = IndexRouteImport.update({
@@ -76,6 +77,12 @@ const AuthenticatedStockIssueRoute = AuthenticatedStockIssueRouteImport.update({
   path: '/stock-issue',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSupplierDuesRoute =
+  AuthenticatedSupplierDuesRouteImport.update({
+    id: '/supplier-dues',
+    path: '/supplier-dues',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedUserAccessRoute = AuthenticatedUserAccessRouteImport.update({
   id: '/user-access',
   path: '/user-access',
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/settlement': typeof AuthenticatedSettlementRoute
   '/stock-issue': typeof AuthenticatedStockIssueRoute
+  '/supplier-dues': typeof AuthenticatedSupplierDuesRoute
   '/user-access': typeof AuthenticatedUserAccessRoute
 }
 export interface FileRoutesByTo {
@@ -106,6 +114,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/settlement': typeof AuthenticatedSettlementRoute
   '/stock-issue': typeof AuthenticatedStockIssueRoute
+  '/supplier-dues': typeof AuthenticatedSupplierDuesRoute
   '/user-access': typeof AuthenticatedUserAccessRoute
 }
 export interface FileRoutesById {
@@ -121,6 +130,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/settlement': typeof AuthenticatedSettlementRoute
   '/_authenticated/stock-issue': typeof AuthenticatedStockIssueRoute
+  '/_authenticated/supplier-dues': typeof AuthenticatedSupplierDuesRoute
   '/_authenticated/user-access': typeof AuthenticatedUserAccessRoute
 }
 export interface FileRouteTypes {
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/settlement'
     | '/stock-issue'
+    | '/supplier-dues'
     | '/user-access'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/settlement'
     | '/stock-issue'
+    | '/supplier-dues'
     | '/user-access'
   id:
     | '__root__'
@@ -163,6 +175,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/settlement'
     | '/_authenticated/stock-issue'
+    | '/_authenticated/supplier-dues'
     | '/_authenticated/user-access'
   fileRoutesById: FileRoutesById
 }
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStockIssueRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/supplier-dues': {
+      id: '/_authenticated/supplier-dues'
+      path: '/supplier-dues'
+      fullPath: '/supplier-dues'
+      preLoaderRoute: typeof AuthenticatedSupplierDuesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/user-access': {
       id: '/_authenticated/user-access'
       path: '/user-access'
@@ -270,6 +290,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSettlementRoute: typeof AuthenticatedSettlementRoute
   AuthenticatedStockIssueRoute: typeof AuthenticatedStockIssueRoute
+  AuthenticatedSupplierDuesRoute: typeof AuthenticatedSupplierDuesRoute
   AuthenticatedUserAccessRoute: typeof AuthenticatedUserAccessRoute
 }
 
@@ -282,6 +303,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSettlementRoute: AuthenticatedSettlementRoute,
   AuthenticatedStockIssueRoute: AuthenticatedStockIssueRoute,
+  AuthenticatedSupplierDuesRoute: AuthenticatedSupplierDuesRoute,
   AuthenticatedUserAccessRoute: AuthenticatedUserAccessRoute,
 }
 

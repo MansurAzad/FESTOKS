@@ -1,10 +1,29 @@
-import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  redirect,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/me";
 import { useT, type Key } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Menu, Package, Users, PackageOpen, HandCoins, ShoppingCart, Store, Settings2, ShieldCheck, type LucideIcon } from "lucide-react";
+import {
+  LayoutDashboard,
+  Menu,
+  Package,
+  Users,
+  PackageOpen,
+  HandCoins,
+  ShoppingCart,
+  Store,
+  Settings2,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useBusiness } from "@/lib/business";
 import { useOnline, usePendingSyncCount } from "@/lib/offline";
@@ -25,6 +44,7 @@ const navIcon: Partial<Record<Key, LucideIcon>> = {
   settlement: HandCoins,
   sales: ShoppingCart,
   retailers: Store,
+  supplierDues: HandCoins,
   settings: Settings2,
   userAccess: ShieldCheck,
 };
@@ -46,6 +66,7 @@ const adminNav: { to: string; k: Key }[] = [
   { to: "/stock-issue", k: "stockIssue" },
   { to: "/settlement", k: "settlement" },
   { to: "/retailers", k: "retailers" },
+  { to: "/supplier-dues", k: "supplierDues" },
   { to: "/settings", k: "settings" },
   { to: "/user-access", k: "userAccess" },
 ];
@@ -74,29 +95,58 @@ function Layout() {
       <header className="sticky top-0 z-20 border-b bg-primary text-primary-foreground">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 sm:px-4">
           <div className="flex min-w-0 items-center gap-2.5">
-            <img src={LOGO_URL} alt={t("companyName")} className="h-10 w-10 shrink-0 rounded-md bg-card object-contain p-0.5 sm:h-12 sm:w-12" />
+            <img
+              src={LOGO_URL}
+              alt={t("companyName")}
+              className="h-10 w-10 shrink-0 rounded-md bg-card object-contain p-0.5 sm:h-12 sm:w-12"
+            />
             <div className="min-w-0">
-            <div className="break-words font-display text-base font-bold sm:text-lg">{t("companyName")}</div>
-            <div className="break-words text-xs leading-relaxed opacity-90 sm:text-sm">{t("appName")}</div>
-            <div className="hidden text-xs opacity-80 sm:block">{t("companyAddress")} · {t("companyPhone")}</div>
+              <div className="break-words font-display text-base font-bold sm:text-lg">
+                {t("companyName")}
+              </div>
+              <div className="break-words text-xs leading-relaxed opacity-90 sm:text-sm">
+                {t("appName")}
+              </div>
+              <div className="hidden text-xs opacity-80 sm:block">
+                {t("companyAddress")} · {t("companyPhone")}
+              </div>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <SyncBadge />
             <BusinessSettings />
-            <Button size="sm" variant="secondary" onClick={() => setLang(lang === "bn" ? "en" : "bn")}>{lang === "bn" ? "EN" : "বাং"}</Button>
-            <Button size="sm" variant="secondary" className="px-2" onClick={signOut}>{t("signOut")}</Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setLang(lang === "bn" ? "en" : "bn")}
+            >
+              {lang === "bn" ? "EN" : "বাং"}
+            </Button>
+            <Button size="sm" variant="secondary" className="px-2" onClick={signOut}>
+              {t("signOut")}
+            </Button>
           </div>
           <nav className="col-span-2 hidden flex-wrap gap-1 md:flex">
             {nav.map((n) => (
-              <Link key={n.to} to={n.to} className="rounded-md px-3 py-1.5 text-sm hover:bg-primary-foreground/10" activeProps={{ className: "bg-accent text-accent-foreground" }}>
+              <Link
+                key={n.to}
+                to={n.to}
+                className="rounded-md px-3 py-1.5 text-sm hover:bg-primary-foreground/10"
+                activeProps={{ className: "bg-accent text-accent-foreground" }}
+              >
                 {t(n.k)}
               </Link>
             ))}
           </nav>
         </div>
       </header>
-      <main className="mx-auto min-w-0 max-w-6xl px-3 py-5 sm:px-4">{me?.active ? <Outlet /> : me ? <p className="text-destructive">{t("accountDisabled")}</p> : null}</main>
+      <main className="mx-auto min-w-0 max-w-6xl px-3 py-5 sm:px-4">
+        {me?.active ? (
+          <Outlet />
+        ) : me ? (
+          <p className="text-destructive">{t("accountDisabled")}</p>
+        ) : null}
+      </main>
       <MobileNav nav={nav} />
     </div>
   );
@@ -147,7 +197,11 @@ function MobileNav({ nav }: { nav: { to: string; k: Key }[] }) {
           <SheetContent side="left" className="w-64 p-0">
             <SheetHeader className="border-b p-4">
               <SheetTitle className="flex items-center gap-2">
-                <img src={LOGO_URL} alt={t("companyName")} className="h-8 w-8 shrink-0 rounded-md object-contain" />
+                <img
+                  src={LOGO_URL}
+                  alt={t("companyName")}
+                  className="h-8 w-8 shrink-0 rounded-md object-contain"
+                />
                 <span className="min-w-0 truncate text-sm">{t("menu")}</span>
               </SheetTitle>
             </SheetHeader>
@@ -199,17 +253,44 @@ function BusinessSettings() {
   const [f, setF] = useState(business);
   return (
     <>
-      <Button size="sm" variant="secondary" title={t("businessInfo")} onClick={() => { setF(business); setOpen(true); }}>
+      <Button
+        size="sm"
+        variant="secondary"
+        title={t("businessInfo")}
+        onClick={() => {
+          setF(business);
+          setOpen(true);
+        }}
+      >
         <Settings2 className="h-4 w-4" />
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{t("businessInfo")}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{t("businessInfo")}</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3">
-            <div className="space-y-1"><Label>{t("name")}</Label><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
-            <div className="space-y-1"><Label>{t("address")}</Label><Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></div>
-            <div className="space-y-1"><Label>{t("phone")}</Label><Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
-            <Button className="w-full" onClick={() => { saveBusiness(f); setOpen(false); }}>{t("save")}</Button>
+            <div className="space-y-1">
+              <Label>{t("name")}</Label>
+              <Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>{t("address")}</Label>
+              <Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>{t("phone")}</Label>
+              <Input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
+            </div>
+            <Button
+              className="w-full"
+              onClick={() => {
+                saveBusiness(f);
+                setOpen(false);
+              }}
+            >
+              {t("save")}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

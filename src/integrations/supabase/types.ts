@@ -201,6 +201,7 @@ export type Database = {
           id: string
           imei: string
           product_id: string
+          receipt_id: string | null
           retailer_id: string | null
           salesman_id: string | null
           status: Database["public"]["Enums"]["imei_status"]
@@ -210,6 +211,7 @@ export type Database = {
           id?: string
           imei: string
           product_id: string
+          receipt_id?: string | null
           retailer_id?: string | null
           salesman_id?: string | null
           status?: Database["public"]["Enums"]["imei_status"]
@@ -219,6 +221,7 @@ export type Database = {
           id?: string
           imei?: string
           product_id?: string
+          receipt_id?: string | null
           retailer_id?: string | null
           salesman_id?: string | null
           status?: Database["public"]["Enums"]["imei_status"]
@@ -236,33 +239,114 @@ export type Database = {
       products: {
         Row: {
           created_at: string
+          cost_price: number | null
           id: string
           is_smartphone: boolean
           low_stock_threshold: number
           model: string | null
           name: string
           price: number
+          selling_price: number
           stock_qty: number
         }
         Insert: {
           created_at?: string
+          cost_price?: number | null
           id?: string
           is_smartphone?: boolean
           low_stock_threshold?: number
           model?: string | null
           name: string
           price?: number
+          selling_price?: number
           stock_qty?: number
         }
         Update: {
           created_at?: string
+          cost_price?: number | null
           id?: string
           is_smartphone?: boolean
           low_stock_threshold?: number
           model?: string | null
           name?: string
           price?: number
+          selling_price?: number
           stock_qty?: number
+        }
+        Relationships: []
+      }
+      stock_receipts: {
+        Row: {
+          batch_reference: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string | null
+          product_id: string
+          purchase_reference: string | null
+          quantity_received: number
+          quantity_remaining: number
+          receipt_order: number
+          received_on: string
+          supplier: string
+          unit_cost: number | null
+        }
+        Insert: {
+          batch_reference?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          product_id: string
+          purchase_reference?: string | null
+          quantity_received: number
+          quantity_remaining: number
+          receipt_order?: number
+          received_on?: string
+          supplier: string
+          unit_cost?: number | null
+        }
+        Update: {
+          batch_reference?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          product_id?: string
+          purchase_reference?: string | null
+          quantity_received?: number
+          quantity_remaining?: number
+          receipt_order?: number
+          received_on?: string
+          supplier?: string
+          unit_cost?: number | null
+        }
+        Relationships: []
+      }
+      supplier_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          note: string | null
+          received_by: string | null
+          supplier: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          received_by?: string | null
+          supplier: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          received_by?: string | null
+          supplier?: string
         }
         Relationships: []
       }
@@ -396,8 +480,10 @@ export type Database = {
           product_id: string
           qty: number
           retailer_id: string | null
+          receipt_id: string | null
           sale_id: string | null
           salesman_id: string
+          unit_cost: number | null
           unit_price: number
         }
         Insert: {
@@ -407,9 +493,11 @@ export type Database = {
           kind: Database["public"]["Enums"]["move_kind"]
           product_id: string
           qty: number
+          receipt_id?: string | null
           retailer_id?: string | null
           sale_id?: string | null
           salesman_id: string
+          unit_cost?: number | null
           unit_price?: number
         }
         Update: {
@@ -419,9 +507,11 @@ export type Database = {
           kind?: Database["public"]["Enums"]["move_kind"]
           product_id?: string
           qty?: number
+          receipt_id?: string | null
           retailer_id?: string | null
           sale_id?: string | null
           salesman_id?: string
+          unit_cost?: number | null
           unit_price?: number
         }
         Relationships: [
@@ -518,6 +608,10 @@ export type Database = {
         Args: { _kind: string; _operation_id: string; _payload: Json }
         Returns: Json
       }
+      perform_stock_receipt_operation: {
+        Args: { _operation_id: string; _payload: Json }
+        Returns: Json
+      }
       retailer_balance_summary: { Args: never; Returns: Json }
       retailer_ledger_page: {
         Args: {
@@ -539,6 +633,34 @@ export type Database = {
           _to?: string | null
         }
         Returns: Json
+      }
+      supplier_due_summary: {
+        Args: { _from?: string | null; _to?: string | null }
+        Returns: Json
+      }
+      supplier_ledger_page: {
+        Args: {
+          _from?: string | null
+          _limit?: number
+          _offset?: number
+          _supplier: string
+          _to?: string | null
+        }
+        Returns: Json
+      }
+      perform_supplier_payment_operation: {
+        Args: { _operation_id: string; _payload: Json }
+        Returns: Json
+      }
+      manage_supplier_payment: {
+        Args: {
+          _action: string
+          _amount: number | null
+          _id: string
+          _note: string | null
+          _reason: string
+        }
+        Returns: undefined
       }
       has_role: {
         Args: {
