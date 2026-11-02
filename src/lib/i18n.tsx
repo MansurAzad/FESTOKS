@@ -14,6 +14,12 @@ const dict = {
   supplierDues: ["সাপ্লায়ার বাকি", "Supplier dues"],
   settlement: ["ফেরত ও জমা", "Return & Deposit"],
   signOut: ["লগ আউট", "Sign out"],
+  signOutPendingTitle: ["অফলাইন এন্ট্রি বাকি আছে", "Offline entries are pending"],
+  signOutPendingBody: [
+    "অফলাইন এন্ট্রিগুলো এই ডিভাইসে থাকবে। এই অ্যাকাউন্টে যুক্ত এন্ট্রি অন্য অ্যাকাউন্টে পাঠানো হবে না; পুরোনো অ্যাকাউন্ট-না-জানা এন্ট্রি যাচাই না করা পর্যন্ত আলাদা থাকবে। সিঙ্ক করতে একই অ্যাকাউন্টে আবার লগইন করুন। তবুও কি লগ আউট করবেন?",
+    "Pending entries will stay on this device. Entries linked to this account will never be sent as another account; older unassigned entries stay separate until reviewed. Sign in again as this user to sync linked entries. Sign out anyway?",
+  ],
+  signOutAnyway: ["তবুও লগ আউট", "Sign out anyway"],
   menu: ["মেনু", "Menu"],
   more: ["আরও", "More"],
   settings: ["সেটিংস", "Settings"],

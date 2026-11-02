@@ -98,6 +98,28 @@ describe("offline queue", () => {
       ),
     ).toEqual(["s2"]);
   });
+  it("replays only the active account queue after an account switch", async () => {
+    enqueueOp(
+      { kind: "deposit", payload: { salesman_id: "s1", amount: 500, note: null } },
+      "user-1",
+    );
+    enqueueOp(
+      { kind: "deposit", payload: { salesman_id: "s2", amount: 200, note: null } },
+      "user-2",
+    );
+    rpc.mockResolvedValue({ data: null, error: null });
+
+    authListener.current?.("SIGNED_IN", { user: { id: "user-2" } });
+    const result = await replayQueue();
+
+    expect(result).toMatchObject({ synced: 1, failed: null });
+    expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc.mock.calls[0]?.[1]).toMatchObject({
+      _payload: { salesman_id: "s2", amount: 200 },
+    });
+    expect(getQueue("user-1")).toHaveLength(1);
+    expect(getQueue("user-2")).toHaveLength(0);
+  });
   it("only assigns pre-upgrade entries after an explicit account choice", () => {
     window.localStorage.setItem(
       "offline-queue-v1",

@@ -43,6 +43,8 @@ Vercel-এর জন্য `bun run build:vercel` ব্যবহার হয়; 
 
 কোনো secret `VITE_` variable-এ রাখবেন না। `.env` বা credential কখনো commit করবেন না। Production database migration চালানোর আগে আলাদা backup এবং অনুমোদিত migration process নিশ্চিত করুন।
 
+Local setup-এর জন্য `.env.example` কপি করে `.env` তৈরি করুন; placeholder-গুলো নিজের project-এর মান দিয়ে পূরণ করুন। `SUPABASE_SERVICE_ROLE_KEY` শুধু server-side account provisioning-এ ব্যবহৃত হবে—এটি কখনো client bundle, browser storage বা Git-এ রাখবেন না।
+
 ### Auth ও Owner onboarding
 
 Public sign-up বন্ধ রাখুন (`supabase/config.toml`-এ `auth.enable_signup = false`)। Supabase Auth-এর “Allow new users to sign up” সেটিংও বন্ধ থাকতে হবে; config পরিবর্তনের আগে `supabase config diff` দেখে শুধু অনুমোদিত setting push করুন। Password reset-এর production redirect URL allowlist-এ আছে। নতুন project-এর প্রথম Owner শুধু server-side Supabase Admin API দিয়ে তৈরি করুন:

@@ -107,6 +107,7 @@ function Salesmen() {
               <RecordActions
                 table="profiles"
                 id={s.id}
+                allowDelete={false}
                 fields={[
                   { key: "full_name", label: "fullName", value: s.full_name },
                   { key: "phone", label: "phone", value: s.phone },

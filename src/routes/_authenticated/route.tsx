@@ -31,6 +31,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { toast } from "sonner";
 
 // Logo is served from /public so it works on every host (Lovable + Vercel),
 // not only on Lovable's asset CDN.
@@ -83,12 +84,32 @@ function Layout() {
   const { t, lang, setLang } = useT();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const pending = usePendingSyncCount();
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const nav = me?.isAdmin ? adminNav : salesNav;
   async function signOut() {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    if (pending > 0) {
+      setConfirmSignOut(true);
+      return;
+    }
+    await completeSignOut();
+  }
+  async function completeSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      await qc.cancelQueries();
+      qc.clear();
+      navigate({ to: "/auth", replace: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      setSigningOut(false);
+      setConfirmSignOut(false);
+    }
   }
   return (
     <div className="min-h-screen pb-20 md:pb-0">
@@ -140,6 +161,31 @@ function Layout() {
           </nav>
         </div>
       </header>
+      <Dialog
+        open={confirmSignOut}
+        onOpenChange={(open) => {
+          if (!signingOut) setConfirmSignOut(open);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("signOutPendingTitle")}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{t("signOutPendingBody")}</p>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              disabled={signingOut}
+              onClick={() => setConfirmSignOut(false)}
+            >
+              {t("cancel")}
+            </Button>
+            <Button disabled={signingOut} onClick={() => void completeSignOut()}>
+              {t("signOutAnyway")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <main className="mx-auto min-w-0 max-w-6xl px-3 py-5 sm:px-4">
         {me?.active ? (
           <Outlet />
