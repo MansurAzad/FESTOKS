@@ -1,0 +1,16 @@
+{
+  "name": "প্রোডাক্ট ডিস্ট্রিবিউশন ম্যানেজমেন্ট — FIROZA ENTERPRISE",
+  "short_name": "FIROZA ENT.",
+  "description": "FIROZA ENTERPRISE — KONABARI, GAZIPUR. Product distribution and accounts.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#1f6f78",
+  "background_color": "#f8f6f0",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

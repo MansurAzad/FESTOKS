@@ -1,0 +1,3 @@
+REVOKE EXECUTE ON FUNCTION public.handle_new_user(),public.enforce_dealer_block(),public.guard_business_access(),public.guard_profile_access() FROM PUBLIC,anon,authenticated;
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid,public.app_role),public.check_imei(text,text,uuid),public.issue_stock(uuid,jsonb),public.holding_qty(uuid,uuid),public.record_sale(uuid,jsonb,numeric),public.return_stock(uuid,jsonb) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.has_role(uuid,public.app_role),public.check_imei(text,text,uuid),public.issue_stock(uuid,jsonb),public.holding_qty(uuid,uuid),public.record_sale(uuid,jsonb,numeric),public.return_stock(uuid,jsonb) TO authenticated;

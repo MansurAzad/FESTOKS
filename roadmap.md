@@ -1,0 +1,24 @@
+# Current tasks
+- [x] Add owner-only user roles and access page with search, filters, confirmation and audit history.
+- [x] Enforce active accounts and salesman action permissions in database, RPCs and UI without widening owner-only actions; revoke anonymous internal RPC access.
+- [x] Verify permission changes, self-lockout protection and inactive RLS in isolated tests; save unchanged requesting-owner permissions and read audit through desktop/mobile UI. Initial sign-in hydration emits recoverable preview warnings; access-page interactions emit none.
+- [x] Add settings page with company/account controls and local data management.
+- [x] Complete safe list CRUD and audited owner transaction cancellation/correction controls; historical master lists are protected and salesman accounts use deactivation.
+- [x] Add owner-only business-data export/restore and confirmed reset of accounts/list data while preserving login accounts; full database/account exports remain in Cloud.
+- [x] Test permissions, restore validation and reset on isolated PostgreSQL fixtures; verify live backup download, confirmation safeguards, temporary product CRUD and mobile settings without resetting real data.
+- [x] Add branded PDF export to dashboard overdue dues.
+- [x] Add owner-only AI payment-risk ranking from actual dealer history.
+- [x] Require explicit confirmation and enforce dealer blocking securely.
+- [x] Verify branded print sheet, live AI assessment with temporary dealer, Cancel/no-confirm safeguards, financial SQL and mobile layout; remove verification records.
+- [x] Apply software and company branding across pages and printed documents.
+- [x] Optimize repeated data requests and inspect database performance.
+- [x] Improve mobile layouts and verify all main pages.
+- [x] Show 30-day overdue retailers above dashboard KPI cards, respecting existing permissions.
+- [x] Add per-product low-stock limits and red dashboard alerts.
+- [x] Add relevant KPI cards and verify calculations and mobile layouts.
+- [x] Speed pass: local session checks in guards, shared cached "me" query, intent preloading, font preconnect; reverted autoCodeSplitting (hydration break); verified timings and zero page errors.
+- [x] PWA install support: static manifest, app icons, favicon, theme-color, guarded SW registration (never in preview/dev).
+- [x] Offline support: generated service worker (NetworkFirst pages), persisted query cache (excludes security queries), first-open internet validation gate.
+- [x] Offline entry queue for sale/return/issue/deposit/payment/retailer-add with replay on reconnect, offline IMEI fallback, header sync badge; verified end-to-end in browser (queued deposit synced on reconnect).
+- [x] Serve logo from public/firoza-logo.png so it renders on Vercel deploys (CDN pointer URL only works on Lovable); verified in header, auth page and print letterhead test.
+- [x] Mobile nav: 4-item bottom bar (3 pages + More) with auto-hiding drawer listing all pages; verified drawer opens, navigates and closes itself.

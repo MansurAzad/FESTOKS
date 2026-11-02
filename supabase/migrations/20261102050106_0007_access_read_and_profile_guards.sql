@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION public.holding_qty(_salesman uuid,_product uuid) RETURNS integer LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT CASE WHEN public.user_is_active(auth.uid()) AND (auth.uid()=_salesman OR public.has_role(auth.uid(),'admin')) THEN coalesce((SELECT sum(CASE WHEN kind='issue' THEN qty ELSE -qty END)::integer FROM stock_movements WHERE salesman_id=_salesman AND product_id=_product),0) ELSE 0 END; $$;
+CREATE OR REPLACE FUNCTION public.check_imei(_imei text,_mode text,_salesman uuid) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ DECLARE u record; p record; BEGIN
+IF NOT public.user_is_active(auth.uid()) OR NOT (public.has_role(auth.uid(),'admin') OR _salesman=auth.uid()) OR _mode NOT IN ('sale','return','issue') THEN RETURN jsonb_build_object('ok',false,'reason','forbidden'); END IF;
+IF NOT public.user_can(auth.uid(),CASE _mode WHEN 'sale' THEN 'sales' WHEN 'return' THEN 'returns' ELSE 'issue_stock' END) THEN RETURN jsonb_build_object('ok',false,'reason','forbidden'); END IF;
+SELECT * INTO u FROM imei_units WHERE imei=trim(_imei); IF NOT FOUND THEN RETURN jsonb_build_object('ok',false,'reason','not_found'); END IF;
+IF _mode='issue' AND u.status<>'in_stock' THEN RETURN jsonb_build_object('ok',false,'reason','not_in_stock'); END IF;
+IF _mode IN ('sale','return') AND (u.status<>'with_salesman' OR u.salesman_id IS DISTINCT FROM _salesman) THEN RETURN jsonb_build_object('ok',false,'reason','not_with_salesman'); END IF;
+SELECT * INTO p FROM products WHERE id=u.product_id;
+RETURN jsonb_build_object('ok',true,'product_id',p.id,'product_name',p.name,'price',p.price,'imei',u.imei); END; $$;
+CREATE POLICY active_profile_update ON public.profiles AS RESTRICTIVE FOR UPDATE TO authenticated USING(public.user_is_active(auth.uid())) WITH CHECK(public.user_is_active(auth.uid()));

@@ -1,0 +1,83 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793399135026,
+      "tag": "0000_migration",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793547369268,
+      "tag": "0001_optimize_distribution_reporting",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793547828682,
+      "tag": "0002_dashboard_alerts_and_kpis",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793548247878,
+      "tag": "0003_dealer_risk_and_confirmed_blocks",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793595018147,
+      "tag": "0004_settings_data_management",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793595079536,
+      "tag": "0005_validated_history_cancellation",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793595570135,
+      "tag": "0006_user_roles_access_control",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793595666943,
+      "tag": "0007_access_read_and_profile_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793595741573,
+      "tag": "0008_access_role_transition_safety",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793595851975,
+      "tag": "0009_restrict_internal_access_helpers",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793601800000,
+      "tag": "0010_urgent_transaction_safety",
+      "breakpoints": true
+    }
+  ]
+}
